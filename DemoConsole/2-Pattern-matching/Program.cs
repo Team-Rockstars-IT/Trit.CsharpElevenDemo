@@ -18,6 +18,7 @@ public static class Demo
 
     private static int GetValueAtIndexZero(IList<int> values)
     {
+        // FEATURE: List patterns
         return values switch
         {
             [ 1, .. ] => 1,

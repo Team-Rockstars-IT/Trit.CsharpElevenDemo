@@ -3,59 +3,73 @@
 public static class Demo
 {
     // FEATURE: Allow Generic Attributes
-    public class CompareWithAttribute<TComparer, TComparable>
-        : Attribute
-        where TComparer : IComparer<TComparable>
-    {
-    }
-
-    [CompareWith<PersonComparer, Person>]
+    [Subclass<SoftwareEngineer>(discriminator: "ENG")]
     public record Person(string FirstName, string LastName, int Age);
+
+    public record SoftwareEngineer(string FirstName, string LastName, int Age)
+        : Person(FirstName, LastName, Age);
 
     public static Task Main()
     {
-        IComparer<Person> comparer = GetComparerFromAttribute();
+        var element = JsonSerializer.Deserialize<JsonElement>(PersonJson, CamelOptions);
 
-        var comparisonResult = comparer.Compare(
-            new Person("Jane", "Doe", 42),
-            new Person("Foo", "Bar", 42));
+        var discriminator = element.EnumerateObject()
+            .First(o => o.Name == "type")
+            .Value.GetString();
+        Type subclass = GetSubclassTypeFromDiscriminator<Person>(discriminator);
 
-        WriteLine("Result when two people are compared " +
-                  $"by age: {comparisonResult}");
+        var programmer = element.Deserialize(subclass, CamelOptions) as SoftwareEngineer;
+        WriteLine($"Deserialized engineer with first name: {programmer?.FirstName}");
 
         return Task.CompletedTask;
     }
 
-    #region Boilerplate
+    #region Not interesting
 
-    private static IComparer<Person> GetComparerFromAttribute()
+    private static Type GetSubclassTypeFromDiscriminator<T>(string? discriminator)
     {
-        // This retrieves the TComparer generic type parameter from CompareWithAttribute
-        // and thus hopefully ending up with PersonComparer
-        Type? comparerType = typeof(Person)
+        // Find the SubclassAttribute matching the given discriminator
+        // and get its generic type parameter
+        Type? subClassType = typeof(T)
             .GetCustomAttributes(inherit: true)
-            .Select(a => a.GetType())
             .FirstOrDefault(a =>
-                a.IsGenericType
-                && a.GetGenericTypeDefinition() == typeof(CompareWithAttribute<,>))
-            ?.GenericTypeArguments[0];
+                a.GetType().IsGenericType
+                && a.GetType().GetGenericTypeDefinition() == typeof(SubclassAttribute<>)
+                && string.Equals(((ISubclassAttribute)a).Discriminator, discriminator, StringComparison.OrdinalIgnoreCase))
+            ?.GetType().GenericTypeArguments[0];
 
-        return (IComparer<Person>)(Activator.CreateInstance(
-            comparerType
-            ?? throw new InvalidOperationException("Oops")))!;
+        return subClassType
+               ?? throw new InvalidOperationException($"Unable to find subclass for: {discriminator}");
     }
 
-    private class PersonComparer : IComparer<Person>
-    {
-        public int Compare(Person? x, Person? y)
+    private const string PersonJson = """
         {
-            if (ReferenceEquals(x, y)) return 0;
-            if (y is null) return 1;
-            if (x is null) return -1;
-
-            return x.Age.CompareTo(y.Age);
+            "type": "ENG",
+            "firstName": "Rasmus",
+            "lastName": "Lerdorf",
+            "age": 53
         }
+    """;
+
+    public class SubclassAttribute<TSubClass> : Attribute, ISubclassAttribute
+    {
+        public SubclassAttribute(string discriminator)
+        {
+            Discriminator = discriminator;
+        }
+
+        public string Discriminator { get; }
     }
+
+    public interface ISubclassAttribute
+    {
+        string Discriminator { get; }
+    }
+
+    private static JsonSerializerOptions CamelOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
 
     #endregion
 }

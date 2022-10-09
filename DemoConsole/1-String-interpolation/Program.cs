@@ -6,6 +6,7 @@ public static class Demo
     {
         Person person = GetPerson();
 
+        // FEATURE: Newlines in interpolation
         WriteLine(
             $"The colors of the flag of the country, " +
             $"of the inventor of the flag " +
