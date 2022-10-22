@@ -11,11 +11,10 @@
     }
 }
 
-// FEATURE: File-local types
 namespace Trit.DemoConsole._2_Pattern_matching
 {
-    // This might end up something like:
-    // <_>FD2E2ADF7177B7A8AFDDBC12D1634CF23EA1A71020F6A1308070A16400FB68FDE__Demo
+    // This might end up something like: `Trit.DemoConsole._2_Pattern_matching.<Program>F4__Demo`
+    // FEATURE: File-local types
     file class Demo
     {
         public static Task Main()

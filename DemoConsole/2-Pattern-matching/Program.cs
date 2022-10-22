@@ -13,6 +13,9 @@ public static class Demo
             WriteLine("2");
         }
 
+        WriteLine("And do we have a match? " +
+                  (IsMatch("hello") ? "Yes" : "No"));
+
         return Task.CompletedTask;
     }
 
@@ -24,6 +27,18 @@ public static class Demo
             [ 1, .. ] => 1,
             [ var x, .. ] => x,
             { Count: 0 } => -1
+        };
+    }
+
+    private static bool IsMatch(ReadOnlySpan<char> subject)
+    {
+        // FEATURE: Switching ReadOnlySpan<char> with constant strings
+        return subject switch
+        {
+            "hello world" => true,
+            "hello" => true,
+            "world" => true,
+            _ => false
         };
     }
 }

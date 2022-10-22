@@ -15,8 +15,11 @@ while (true)
         '2' => DemoConsole._2_Pattern_matching.Demo.Main(),
         '3' => DemoConsole._3_File_local_types.Demo.Main(),
         '4' => DemoConsole._4_Raw_string_literals.Demo.Main(),
-        '5' => DemoConsole._5_Method_group_conversion.Demo.Main(),
+        '5' => DemoConsole._5_Required_properties.Demo.Main(),
+        '6' => DemoConsole._6_Ref_scoped_and_structs.Demo.Main(),
+        '7' => DemoConsole._7_Nameof_and_method_groups.Demo.Main(),
         '8' => DemoConsole._8_Generic_attributes.Demo.Main(),
+        '9' => DemoConsole._9_Numbers.Demo.Main(),
         _ => Task.CompletedTask
     });
 
