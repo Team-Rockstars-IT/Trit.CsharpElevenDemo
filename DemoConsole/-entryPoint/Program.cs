@@ -20,6 +20,7 @@ while (true)
         '7' => DemoConsole._7_Nameof_and_method_groups.Demo.Main(),
         '8' => DemoConsole._8_Generic_attributes.Demo.Main(),
         '9' => DemoConsole._9_Numbers.Demo.Main(),
+        'A' => DemoConsole.A_Utf8.Demo.Main(),
         _ => Task.CompletedTask
     });
 

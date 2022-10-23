@@ -11,7 +11,9 @@ public static class Demo
 
     public static Task Main()
     {
-        var element = JsonSerializer.Deserialize<JsonElement>(PersonJson, CamelOptions);
+        var element = JsonSerializer.Deserialize<JsonElement>(
+            PersonJson,
+            CamelOptions);
 
         var discriminator = element.EnumerateObject()
             .First(o => o.Name == "type")

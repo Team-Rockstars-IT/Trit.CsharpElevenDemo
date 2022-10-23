@@ -5,7 +5,7 @@ public static class Demo
 {
     public static Task Main()
     {
-        var team = new PadelTeam(ref Pro, ref Pro, ref Pro, ref Pro);
+        var team = new PadelTeam(first: ref Galan);
         WriteLine($"Does the team have a win count? {team.HasWinCount()}");
 
         Span<int> winCounts = stackalloc int[] { 42, 40, 36, 32 };
@@ -13,8 +13,8 @@ public static class Demo
 
         WriteLine($"How about now? {team.HasWinCount()}");
 
-        team.SetReserve(ref Pro);
-        WriteLine($"Who's the reserve? {team.GetNameOfReserve()}");
+        team.SetSecondPlayer(newSecondPlayer: ref Lebron);
+        WriteLine($"Who's the second player? {team.GetNameOfSecondPlayer()}");
 
         return Task.CompletedTask;
     }
@@ -23,57 +23,70 @@ public static class Demo
     {
         // FEATURE: ref fields
         private readonly ref readonly PadelPlayer first;
-        private readonly ref readonly PadelPlayer second;
-        private readonly ref readonly PadelPlayer third;
-        private readonly ref readonly PadelPlayer fourth;
-        private ref readonly PadelPlayer reserve;
-        private readonly ref int wins;
+        private ref readonly PadelPlayer second;
+        private ref int wins;
 
         // FEATURE: Auto-default structs
         private int ranking;
 
-        public PadelTeam(ref PadelPlayer first, ref PadelPlayer second, ref PadelPlayer third, ref PadelPlayer fourth)
+        public PadelTeam(ref PadelPlayer first)
         {
             this.first = ref first;
-            this.second = ref second;
-            this.third = ref third;
-            this.fourth = ref fourth;
         }
 
-        public void SetReserve(ref PadelPlayer newReserve)
+        public void SetSecondPlayer(ref PadelPlayer newSecondPlayer)
         {
-            reserve = ref newReserve;
+            second = ref newSecondPlayer;
         }
 
-        public string GetNameOfReserve() => $"{reserve.FirstName} {reserve.LastName}";
+        public string GetNameOfSecondPlayer() =>
+            $"{second.FirstName} {second.LastName}";
 
         // FEATURE: scoped modifier
-        // Scoped is required here as promise that we won't attempt to store the reference outside the scope of this method,
+        // Scoped is required here as a promise that
+        // we won't attempt to store the reference outside the scope of this method,
         // this allows for a stack-allocated Span<> to be passed in safely
         public void SetWinCountToFirstValue(scoped Span<int> newScore)
         {
-            try
+            if (!HasWinCount())
             {
-                // We can't assign a new value to a reference, if the reference is "null"
-                // And since "wins" is readonly in the sense that it can't be repointed, we're now stuck
-                // If we were to allocate a reference for "wins" in the constructor, this would work just fine
-                wins = newScore[0];
+                // If we don't assign a reference to the field then we'll end up
+                // with a null reference exception once we try to assign a value
+                wins = ref new WinsHolder().wins;
             }
-            catch (NullReferenceException)
-            {
-                WriteLine($"Unable to set win count since there's no ref to mutate");
-            }
+
+            wins = newScore[0];
         }
 
-        public bool HasWinCount() => System.Runtime.CompilerServices.Unsafe.IsNullRef(ref wins);
+        public bool HasWinCount() =>
+            System.Runtime.CompilerServices.Unsafe.IsNullRef(ref wins) == false;
     }
 
-    public readonly record struct PadelPlayer(string FirstName, string LastName, int BirthYear);
+    #region Not interesting
 
-    private static PadelPlayer Pro = new()
+    public readonly record struct PadelPlayer(
+        string FirstName,
+        string LastName,
+        int BirthYear);
+
+    private static PadelPlayer Galan = new()
     {
         FirstName = "Ale",
         LastName = "Galán",
         BirthYear = 1996
     };
+
+    private static PadelPlayer Lebron = new()
+    {
+        FirstName = "Juan",
+        LastName = "Lebrón",
+        BirthYear = 1995
+    };
+
+    private class WinsHolder
+    {
+        public int wins;
+    }
+
+    #endregion
 }

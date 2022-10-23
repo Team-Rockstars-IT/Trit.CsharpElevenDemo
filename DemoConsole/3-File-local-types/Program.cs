@@ -13,7 +13,8 @@
 
 namespace Trit.DemoConsole._2_Pattern_matching
 {
-    // This might end up something like: `Trit.DemoConsole._2_Pattern_matching.<Program>F4__Demo`
+    // This might end up something like:
+    // `Trit.DemoConsole._2_Pattern_matching.<Program>F4__Demo`
     // FEATURE: File-local types
     file class Demo
     {
