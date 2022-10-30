@@ -19,6 +19,8 @@ public static class Demo
         socket.Send("Bye."u8);
         socket.Close();
 
+        WriteLine("Connection closed");
+
         return Task.CompletedTask;
     }
 

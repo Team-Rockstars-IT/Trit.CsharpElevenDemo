@@ -1,4 +1,4 @@
-﻿namespace Trit.DemoConsole._1_String_interpolation;
+﻿namespace Trit.DemoConsole._9_String_interpolation;
 
 public static class Demo
 {

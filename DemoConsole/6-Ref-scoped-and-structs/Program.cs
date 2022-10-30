@@ -58,8 +58,7 @@ public static class Demo
             wins = newScore[0];
         }
 
-        public bool HasWinCount() =>
-            System.Runtime.CompilerServices.Unsafe.IsNullRef(ref wins) == false;
+        public bool HasWinCount() => Unsafe.IsNullRef(ref wins) == false;
     }
 
     #region Not interesting

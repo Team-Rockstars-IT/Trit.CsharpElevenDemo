@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace Trit.DemoConsole._7_Nameof_and_method_groups;
+﻿namespace Trit.DemoConsole._7_Nameof_and_method_groups;
 
 public static class Demo
 {
@@ -21,8 +19,7 @@ public static class Demo
     // FEATURE: Support for method parameter names in nameof()
     [ParameterIsPotentiallyNegative(nameof(someValue))]
     private static void AssertIsPositive(int someValue,
-        [CallerArgumentExpression(nameof(someValue))]
-        string expression = "")
+        [CallerArgumentExpression(nameof(someValue))] string expression = "")
     {
         if (someValue < 0)
         {

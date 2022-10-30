@@ -4,9 +4,7 @@
     {
         public static Task Main()
         {
-            WriteLine(_2_Pattern_matching.Demo.Main());
-
-            return Task.CompletedTask;
+            return _2_Pattern_matching.Demo.Main();
         }
     }
 }

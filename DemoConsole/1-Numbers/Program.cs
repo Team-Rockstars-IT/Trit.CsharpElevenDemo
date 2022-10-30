@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-
-namespace Trit.DemoConsole._9_Numbers;
+﻿namespace Trit.DemoConsole._1_Numbers;
 
 public static class Demo
 {
