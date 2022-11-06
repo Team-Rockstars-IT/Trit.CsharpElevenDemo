@@ -2,10 +2,25 @@
 
 public static class Demo
 {
+    private static T Add<T>(params T[] adds)
+        where T :
+        IAdditionOperators<T, T, T>,
+        IAdditiveIdentity<T, T>
+    {
+        // FEATURE: Static abstract members in interfaces
+        T accumulator = T.AdditiveIdentity;
+        foreach (T add in adds)
+        {
+            accumulator += add;
+        }
+
+        return accumulator;
+    }
+
     public static Task Main()
     {
         // FEATURE: numeric UIntPtr
-        nuint one = 1;
+        const nuint one = 1;
         WriteLine($"1 + 1 = {Add(one, one)}");
 
         WriteLine($"Red + Blue = {Add(Color.Red, Color.Blue)}");
@@ -25,21 +40,6 @@ public static class Demo
         }
 
         return Task.CompletedTask;
-    }
-
-    private static T Add<T>(params T[] adds)
-        where T :
-        IAdditionOperators<T, T, T>,
-        IAdditiveIdentity<T, T>
-    {
-        // FEATURE: Static abstract members in interfaces
-        T accumulator = T.AdditiveIdentity;
-        foreach (T add in adds)
-        {
-            accumulator += add;
-        }
-
-        return accumulator;
     }
 
     public record struct HexDigit(char Digit)

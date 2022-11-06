@@ -9,7 +9,7 @@ while (true)
 
     // All sources available
     // @ https://github.com/Team-Rockstars-IT/Trit.CsharpElevenDemo
-    await (picked switch
+    await (char.ToUpperInvariant(picked) switch
     {
         '1' => DemoConsole._1_Numbers.Demo.Main(),
         '2' => DemoConsole._2_Pattern_matching.Demo.Main(),
@@ -22,13 +22,9 @@ while (true)
         '9' => DemoConsole._9_String_interpolation.Demo.Main(),
         'A' => DemoConsole.A_Utf8.Demo.Main(),
         'B' => DemoConsole.B_TextJson.Demo.Main(),
+        'C' => DemoConsole.C_Int.Demo.Main(),
         _ => Task.CompletedTask
     });
-
-    if (picked == 'Q')
-    {
-        return 0;
-    }
 
     ReadLine();
 }
