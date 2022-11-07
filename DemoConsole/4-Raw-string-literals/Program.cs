@@ -19,7 +19,7 @@ public static class Demo
         File.WriteAllText("temp.py", code);
         using Process pythonProc = Process.Start(new ProcessStartInfo()
         {
-            FileName = "python",
+            FileName = Environment.OSVersion.Platform == PlatformID.Unix ? "python3" : "python",
             Arguments = "temp.py",
             RedirectStandardOutput = true
         }) ?? throw new InvalidOperationException("Failed to start process");
