@@ -34,11 +34,6 @@ public static class Demo
             this.first = ref first;
         }
 
-        public void SetSecondPlayer(ref PadelPlayer newSecondPlayer)
-        {
-            second = ref newSecondPlayer;
-        }
-
         public string GetNameOfSecondPlayer() =>
             $"{second.FirstName} {second.LastName}";
 
@@ -52,10 +47,18 @@ public static class Demo
             {
                 // If we don't assign a reference to the field then we'll end up
                 // with a null reference exception once we try to assign a value
-                wins = ref new WinsHolder().wins;
+                wins = ref new Holder<int>().value;
             }
 
             wins = newScore[0];
+        }
+
+        public void SetSecondPlayer(ref PadelPlayer newSecondPlayer)
+        {
+            // This is a hack, we should simply be able to assign newSecondPlayer to the second field
+            // But that results in "[CS9079] Cannot ref-assign 'newSecondPlayer' to 'second'
+            // because 'newSecondPlayer' can only escape the current method through a return statement."
+            second = ref new Holder<PadelPlayer> { value = newSecondPlayer }.value;
         }
 
         public bool HasWinCount() => Unsafe.IsNullRef(ref wins) == false;
@@ -82,9 +85,9 @@ public static class Demo
         BirthYear = 1995
     };
 
-    private class WinsHolder
+    private class Holder<T>
     {
-        public int wins;
+        public T? value;
     }
 
     #endregion

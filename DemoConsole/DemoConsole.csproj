@@ -7,14 +7,17 @@
         <Nullable>enable</Nullable>
         <LangVersion>preview</LangVersion>
         <RootNamespace>Trit.DemoConsole</RootNamespace>
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
+        <AnalysisLevel>latest</AnalysisLevel>
+        <AnalysisMode>All</AnalysisMode>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <NoWarn>1701;1702;7022</NoWarn>
+      <NoWarn>7022</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <NoWarn>1701;1702;7022</NoWarn>
+      <NoWarn>7022</NoWarn>
     </PropertyGroup>
 
 </Project>
