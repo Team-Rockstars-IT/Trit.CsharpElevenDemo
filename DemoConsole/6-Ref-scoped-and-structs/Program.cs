@@ -1,94 +1,90 @@
 ﻿namespace Trit.DemoConsole._6_Ref_scoped_and_structs;
-#pragma warning disable CS0169
 
 public static class Demo
 {
-    public static Task Main()
-    {
-        var team = new PadelTeam(first: ref Galan);
-        WriteLine($"Does the team have a win count? {team.HasWinCount()}");
-
-        Span<int> winCounts = stackalloc int[] { 42, 40, 36, 32 };
-        team.SetWinCountToFirstValue(winCounts);
-
-        WriteLine($"How about now? {team.HasWinCount()}");
-
-        team.SetSecondPlayer(newSecondPlayer: ref Lebron);
-        WriteLine($"Who's the second player? {team.GetNameOfSecondPlayer()}");
-
-        return Task.CompletedTask;
-    }
-
-    internal ref struct PadelTeam
+    private readonly ref struct FourSongCD
     {
         // FEATURE: ref fields
-        private readonly ref readonly PadelPlayer first;
-        private ref readonly PadelPlayer second;
-        private ref int wins;
+        private readonly ref readonly SongData songOne;
+        private readonly ref readonly SongData songTwo;
+        private readonly ref readonly SongData songThree;
+        private readonly ref readonly SongData songFour;
 
-        // FEATURE: Auto-default structs
-        private int ranking;
-
-        public PadelTeam(ref PadelPlayer first)
+        public FourSongCD(ref SongData one,
+            ref SongData two,
+            ref SongData three,
+            ref SongData four)
         {
-            this.first = ref first;
+            songOne = ref one;
+            songTwo = ref two;
+            songThree = ref three;
+            songFour = ref four;
         }
 
-        public string GetNameOfSecondPlayer() =>
-            $"{second.FirstName} {second.LastName}";
+        public int TotalByteCount =>
+            songOne.DataLength
+            + songTwo.DataLength
+            + songThree.DataLength
+            + songFour.DataLength;
+    }
+
+    private struct SongData
+    {
+        private const int MAX_SONG_LENGTH_IN_BYTES = 10_000;
+        private unsafe fixed byte data[MAX_SONG_LENGTH_IN_BYTES];
+
+        // FEATURE: Auto-default structs
+        private bool lowQuality;
 
         // FEATURE: scoped modifier
         // Scoped is required here as a promise that
         // we won't attempt to store the reference outside the scope of this method,
         // this allows for a stack-allocated Span<> to be passed in safely
-        public void SetWinCountToFirstValue(scoped Span<int> newScore)
+        public unsafe SongData(scoped Span<byte> input)
         {
-            if (!HasWinCount())
+            fixed (byte* fixedBuffer = data)
+            fixed (byte* fixedInput = input)
             {
-                // If we don't assign a reference to the field then we'll end up
-                // with a null reference exception once we try to assign a value
-                wins = ref new Holder<int>().value;
+                Buffer.MemoryCopy(
+                    fixedInput, fixedBuffer,
+                    MAX_SONG_LENGTH_IN_BYTES, input.Length);
             }
-
-            wins = newScore[0];
         }
 
-        public void SetSecondPlayer(ref PadelPlayer newSecondPlayer)
-        {
-            // This is a hack, we should simply be able to assign newSecondPlayer to the second field
-            // But that results in "[CS9079] Cannot ref-assign 'newSecondPlayer' to 'second'
-            // because 'newSecondPlayer' can only escape the current method through a return statement."
-            second = ref new Holder<PadelPlayer> { value = newSecondPlayer }.value;
-        }
-
-        public bool HasWinCount() => Unsafe.IsNullRef(ref wins) == false;
+        public int DataLength => MAX_SONG_LENGTH_IN_BYTES;
     }
 
-    #region Not interesting
-
-    public readonly record struct PadelPlayer(
-        string FirstName,
-        string LastName,
-        int BirthYear);
-
-    private static PadelPlayer Galan = new()
+    public static Task Main()
     {
-        FirstName = "Ale",
-        LastName = "Galán",
-        BirthYear = 1996
-    };
+        RandomNumberGenerator.GetBytes(1000);
+        long before = GC.GetTotalAllocatedBytes(precise: true);
 
-    private static PadelPlayer Lebron = new()
-    {
-        FirstName = "Juan",
-        LastName = "Lebrón",
-        BirthYear = 1995
-    };
+        Span<byte> soundInputBuffer = stackalloc byte[1000];
+        var one = new SongData(RecordSong(soundInputBuffer));
+        var two = new SongData(RecordSong(soundInputBuffer));
+        var three = new SongData(RecordSong(soundInputBuffer));
+        var four = new SongData(RecordSong(soundInputBuffer));
 
-    private class Holder<T>
-    {
-        public T? value;
+        var fourBuffers = new FourSongCD(ref one, ref two, ref three, ref four);
+
+        long after = GC.GetTotalAllocatedBytes(precise: true);
+
+        WriteLine($"Allocated {after - before} bytes of managed memory " +
+                  $"(stack-allocated {fourBuffers.TotalByteCount + 1000} bytes)");
+
+        before = GC.GetTotalAllocatedBytes(precise: true);
+        byte[] managedArray = RandomNumberGenerator.GetBytes(1000);
+        after = GC.GetTotalAllocatedBytes(precise: true);
+
+        WriteLine($"Allocated {after - before} byte of managed memory " +
+                  $"for an array with {managedArray.Length} bytes");
+
+        return Task.CompletedTask;
     }
 
-    #endregion
+    private static Span<byte> RecordSong(Span<byte> data)
+    {
+        RandomNumberGenerator.Fill(data);
+        return data;
+    }
 }
